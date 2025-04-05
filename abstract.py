@@ -2,7 +2,8 @@ import requests
 from Bio import Entrez
 from typing import List
 import time
-
+from dotenv import load_dotenv
+load_dotenv()
 
 def parse_pub_date(pub_date):
     if 'Year' in pub_date:
@@ -78,3 +79,15 @@ def create_string(result): #need to convert the results above to a long string t
     return text
     
 #text then can be directly sent to the LLM as an input
+
+
+if __name__ == '__main__':
+    #run a test case when calling the script directly
+    topics = ['robotic colon resection']
+    start_date = '2018/01/01'
+    end_date = '2023/12/31'
+    queries = make_query(topics, start_date, end_date)
+    results = get_articles(queries, 1)
+    text = create_string(results)
+
+    print(text)
