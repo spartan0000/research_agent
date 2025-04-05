@@ -1,3 +1,4 @@
+
 import os
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
@@ -17,3 +18,4 @@ class State(TypedDict):
     text: str
     articles: List[str]
     summary: str
+
