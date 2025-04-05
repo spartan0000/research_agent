@@ -1,6 +1,5 @@
 import requests
 from Bio import Entrez
-Entrez.email = 'absurdprofessor@gmail.com'
 from typing import List
 import time
 
@@ -71,3 +70,11 @@ def get_articles(queries, n_results):
                 results.append(new_result)
              
     return results
+
+def create_string(result): #need to convert the results above to a long string to input into the LLM
+
+    text = ' '.join(f"{result[i].get('Title', '')} {result[i].get('Abstract', '')} {result[i].get('Keywords', '')}" for i in range(len(result)))
+
+    return text
+    
+#text then can be directly sent to the LLM as an input
