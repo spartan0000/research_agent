@@ -9,10 +9,14 @@ from langchain.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain.schema import HumanMessage
 
+#load functions from abstract.py
+from abstract import get_articles, make_query, create_string
 
 load_dotenv()
 
 llm = ChatOpenAI(model = "gpt-3.5-turbo", temperature = 0.2)
+
+
 
 class State(TypedDict):
     text: str
@@ -35,7 +39,7 @@ def summarize_node(state: State) -> State:
 
     prompt = PromptTemplate(
         input_variables = ['text'],
-        template = f"Summarize the following text: {summary}",
+        template = f"Summarize the following text: {text}",
     )
 
     message = HumanMessage(content = prompt.format(text = state['text']))
@@ -43,4 +47,5 @@ def summarize_node(state: State) -> State:
     response = llm.invoke([message]).content.strip()
 
     return {'summary': response}
+
 
