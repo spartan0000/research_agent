@@ -35,7 +35,9 @@ def get_article_node(state: State) -> State:
     """
     Get the abstract from pubmed and add it to the state
     """
+    print('input state:', state)
     queries = make_query(state['query'], state['start_date'], state['end_date'])
+    print('queries:', queries)
     articles = get_articles(queries, state['num_articles'])
     abstract_text = create_string(articles)
     return {'abstract_text': abstract_text}
@@ -80,4 +82,4 @@ graph = builder.compile()
 if __name__ == "__main__":
     initial_state = {"query": "robotic colon resection", "start_date": "2020/01/01", "end_date": "2023/12/31", "num_articles": 1}
     result = graph.invoke(initial_state)
-    print(result)
+   # print(result)

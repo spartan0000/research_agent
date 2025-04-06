@@ -20,21 +20,23 @@ def parse_pub_date(pub_date):
         return f'{year} - {month} - {day}'
     return 'Not Available'
 
-def make_query(topics: List[str], start_date: str, end_date: str):
+def make_query(topic: str, start_date: str, end_date: str):
     #dates need to be entered as string in the format YYYY/MM/DD
     #topics = ['robotic colon resection']
     #start_date = '2018/01/01'
     #end_date = '2023/12/31'
     
     #format the date range for pubmed
+    
     date_range = f'("{start_date}"[Date - Publication] : "{end_date}"[Date - Publication])'
     
+    queries = f'{topic}[Title/Abstract] AND {date_range}'
     #populate queries based on topic and date range
-    queries = []
+    
     
     #just in case there are more than one topic in the query
-    for topic in topics:
-        queries.append(f'{topic}[Title/Abstract] AND {date_range}')
+    #for topic in topics:
+    #    queries.append(f'{topic}[Title/Abstract] AND {date_range}')
 
 
     return queries
