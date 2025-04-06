@@ -16,7 +16,7 @@ from Bio import Entrez
 from abstract import get_articles, make_query, create_string
 
 load_dotenv()
-Entrez.email = os.environ['Entrez.email']
+Entrez.email = os.environ['EMAIL']
 
 llm = ChatOpenAI(model = "gpt-3.5-turbo", temperature = 0.2)
 
@@ -44,8 +44,7 @@ def get_article_node(state: State) -> State:
 def summarize_node(state: State) -> State:
     """
     Summarize the text which is a compilation of abstracts from pubmed.  
-    The summary should focus on how the abstract text is related to the query terms and should be as relevant as possible to the
-    query terms.
+    
 
     Parameters: state(State): The current state which contains the abstract text to summarize
 
@@ -79,6 +78,6 @@ graph = builder.compile()
 
 
 if __name__ == "__main__":
-    initial_state = {"query": "thyroidectomy", "start_date": "2023/01/01", "end_date": "2025/01/01", "num_articles": 1}
+    initial_state = {"query": "robotic colon resection", "start_date": "2020/01/01", "end_date": "2023/12/31", "num_articles": 1}
     result = graph.invoke(initial_state)
-    print(result['summary'])
+    print(result)

@@ -1,9 +1,16 @@
 import requests
+import os
 from Bio import Entrez
 from typing import List
 import time
 from dotenv import load_dotenv
+
+from openai import OpenAI
+
+
 load_dotenv()
+
+Entrez.email = 'bobthebuilder@mail.com'
 
 def parse_pub_date(pub_date):
     if 'Year' in pub_date:
@@ -80,6 +87,19 @@ def create_string(result): #need to convert the results above to a long string t
     
 #text then can be directly sent to the LLM as an input
 
+client = OpenAI(api_key = os.environ['OPENAI_API_KEY'])
+
+system_prompt = '''You are a research assistant tasked with summarizing scientific articles.  Summarize the abstracts'''
+
+def summarize_text(text):
+    response = client.chat.completions.create(
+        model = 'gpt-3.5-turbo',
+        messages = [
+            {'role': 'system', 'content':system_prompt},
+            {'role': 'user', 'content':text},
+        ]
+    )
+    return response
 
 if __name__ == '__main__':
     #run a test case when calling the script directly
@@ -89,5 +109,5 @@ if __name__ == '__main__':
     queries = make_query(topics, start_date, end_date)
     results = get_articles(queries, 1)
     text = create_string(results)
-
-    print(text)
+    summary = summarize_text(text)
+    print(summary.choices)
