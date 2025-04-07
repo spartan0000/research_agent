@@ -12,8 +12,10 @@ from langchain.schema import HumanMessage
 
 from Bio import Entrez
 
+from openai import OpenAI
+
 #load functions from abstract.py
-from abstract import get_articles, make_query, create_string
+from abstract import get_articles, make_query, create_string, convert_query
 
 load_dotenv()
 Entrez.email = os.environ['EMAIL']
@@ -30,14 +32,23 @@ class State(TypedDict):
     abstract_text: str
     summary: str
 
+#need a way to get free text query into the format we want it to query pubmed
+
+
+
+
+
+
+
+
 
 def get_article_node(state: State) -> State:
     """
     Get the abstract from pubmed and add it to the state
     """
-    print('input state:', state)
+    #print('input state:', state)
     queries = make_query(state['query'], state['start_date'], state['end_date'])
-    print('queries:', queries)
+    #print('queries:', queries)
     articles = get_articles(queries, state['num_articles'])
     abstract_text = create_string(articles)
     return {'abstract_text': abstract_text}
@@ -80,6 +91,12 @@ graph = builder.compile()
 
 
 if __name__ == "__main__":
-    initial_state = {"query": "robotic colon resection", "start_date": "2020/01/01", "end_date": "2023/12/31", "num_articles": 1}
+    query_text = """
+    I need some articles about robotic colon resection starting january 1, 2023 to dec 31, 2024
+    """
+
+
+    
+    initial_state = convert_query(query_text)
     result = graph.invoke(initial_state)
-   # print(result)
+    print(result)

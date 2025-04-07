@@ -20,6 +20,20 @@ def parse_pub_date(pub_date):
         return f'{year} - {month} - {day}'
     return 'Not Available'
 
+
+def convert_query(text):
+
+    
+    response = client.chat.completions.create(
+        model = 'gpt-3.5-turbo',
+        messages = [
+            {'role':'system', 'content':query_prompt},
+            {'role':'user', 'content':text},
+        ]
+    )
+    return response
+
+
 def make_query(topic: str, start_date: str, end_date: str):
     #dates need to be entered as string in the format YYYY/MM/DD
     #topics = ['robotic colon resection']
