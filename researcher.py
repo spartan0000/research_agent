@@ -38,52 +38,40 @@ class State(TypedDict):
 #need a way to get free text query into the format we want it to query pubmed
 
 def format_query(state: State) -> State:
-    """
-    take the user input query and return a dictionary that contains the query, start date, end date, and number of articles
-    """
-    system_prompt = """Extract the search query terms of interest, the start date, end date, and number of articles required.
     
-    """
-
-    input_text = state['user_input']
-    result = llm.invoke(
-        messages = [
-            {'role':'system', 'content': system_prompt},
-            {'role':'user', 'content': input_text},
-        ],
-        functions = [
-            {
-                "name": "generate_query_parameters",
-                "description": "Extracts query terms, dates, and number of articles",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "query": {"type":"string"},
-                        "start_date": {"type":"string"},
-                        "end_date": {"type":"string"},
-                        "num_articles": {"type":"integer"},
-                    },
-                    "required": ["query", "start_date", "end_date", "num_articles"]
-                }
-            }
-        ],
-        function_call = {"name": "generate_query_parameters"}
+    extract_prompt = PromptTemplate(
+        input_variables = ['user_input'],
+        template = """
+        Given the following user input, extract the search query terms of interest, the start date, end date, and the number of articles requested
+        Return a **valid JSON** object with the following key:value pairs
+        {{
+        "query": the search term of interest as a string
+        "start_date": a string in the format YYYY-MM-DD
+        "end_date": a string in the format YYYY-MM-DD
+        "num_articles": an integer
+        }}
+        
+        user_input: {user_input}"""
     )
+    user_input = state['user_input']
 
-    args = result.additional_kwargs['function_call']['arguments']
-    parsed = json.loads(args)
+    
+    prompt = extract_prompt.format(user_input = user_input)
+
+    response = llm.invoke(prompt)
+
+    try:
+        parsed = json.loads(response.content)
+    except json.JSONDecodeError:
+        raise ValueError("Could not parse LLM output as JSON")
 
     return {
-        "query":parsed["query"],
-        "start_date":parsed["start_date"],
-        "end_date":parsed["end_date"],
-        "num_articles":parsed["num_articles"],
+        'query': parsed['query'],
+        'start_date': parsed['start_date'],
+        'end_date': parsed['end_date'],
+        'num_articles': parsed['num_articles'],
+
     }
-
-
-
-
-
 
 
 def get_article_node(state: State) -> State:
@@ -149,6 +137,6 @@ if __name__ == "__main__":
 
 
     
-    initial_state = convert_query(query_text)
+    initial_state = {'user_input': query_text}
     result = graph.invoke(initial_state)
     print(result)
