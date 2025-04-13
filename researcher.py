@@ -14,6 +14,8 @@ from Bio import Entrez
 
 from openai import OpenAI
 
+import argparse
+
 import json
 
 #load functions from abstract.py
@@ -56,7 +58,7 @@ def format_query(state: State) -> State:
     user_input = state['user_input']
 
     
-    prompt = extract_prompt.format(user_input = user_input)
+    prompt = extract_prompt.format(user_input = user_input) #user_input var for the prompt = user_input from state['user_input']
 
     response = llm.invoke(prompt)
 
@@ -65,6 +67,7 @@ def format_query(state: State) -> State:
     except json.JSONDecodeError:
         raise ValueError("Could not parse LLM output as JSON")
 
+    #print(parsed['query'])
     return {
         'query': parsed['query'],
         'start_date': parsed['start_date'],
@@ -82,6 +85,8 @@ def get_article_node(state: State) -> State:
     date_range = f'("{state['start_date']}"[Date - Publication] : "{state['end_date']}"[Date - Publication])'
     
     queries = f'{state['query']}[Title/Abstract] AND {date_range}'
+
+    print(queries)
 
 
 
@@ -127,6 +132,15 @@ builder.add_edge("get_abstracts", "summarize")
 
 
 graph = builder.compile()
+
+
+
+def main(): 
+    parser = argparse.ArgumentParser(description = "Generate summary from pubmed query")
+    parser.add_argument("--topic", required = True, help = "Topic of interest")
+    parser.add_argument("--start_date", default = "2023/01/01", help = "Start date in YYYY/MM/DD format")
+    parser.add_argument("--end_date", default = 2024/12/31, help = "End date in YYY/MM/DD format")
+    parser.add_argument("--n_articles", default = 5, type = int, help = "Number of articles to review")
 
 
 
