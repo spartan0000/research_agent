@@ -136,21 +136,27 @@ graph = builder.compile()
 
 
 def main(): 
+    #currently written to take free text input, have LLM generate query inputs.
+    #if we want to change it so that arguments from command line are used instead, will need to change function above
+    #and the arguments to be parsed from CLI below
+    
     parser = argparse.ArgumentParser(description = "Generate summary from pubmed query")
-    parser.add_argument("--topic", required = True, help = "Topic of interest")
-    parser.add_argument("--start_date", default = "2023/01/01", help = "Start date in YYYY/MM/DD format")
-    parser.add_argument("--end_date", default = 2024/12/31, help = "End date in YYY/MM/DD format")
-    parser.add_argument("--n_articles", default = 5, type = int, help = "Number of articles to review")
+    parser.add_argument("--input", required = True, help = "Topic, dates, and number of articles in free text format")
+    #parser.add_argument("--start_date", default = "2023/01/01", help = "Start date in YYYY/MM/DD format")
+    #parser.add_argument("--end_date", default = 2024/12/31, help = "End date in YYY/MM/DD format")
+    #parser.add_argument("--n_articles", default = 5, type = int, help = "Number of articles to review")
+    args = parser.parse_args()
+    user_input = args.input
+    #start_date = args.start_date
+    #end_date = args.end_date
+    #n_articles = args.n_articles
+
+    initial_state = {'user_input': user_input}
+    result = graph.invoke(initial_state)
+    print(result)
 
 
 
 if __name__ == "__main__":
-    query_text = """
-    I need some articles about robotic colon resection starting january 1, 2023 to dec 31, 2024
-    """
-
-
+    main()
     
-    initial_state = {'user_input': query_text}
-    result = graph.invoke(initial_state)
-    print(result)
