@@ -60,38 +60,42 @@ def make_query(topic: str, start_date: str, end_date: str):
 #process each query
 def get_articles(queries, n_results):
     results = []
-    for query in queries:
-        handle = Entrez.esearch(db = 'pubmed', term = query, retmax = n_results)
-        record = Entrez.read(handle)
-        id_list = record['IdList']
+    
+    handle = Entrez.esearch(db = 'pubmed', term = query, retmax = n_results)
+    record = Entrez.read(handle)
+    id_list = record['IdList']
         
         #for each pmid, get information about the article
-        for pmid in id_list:
+    for pmid in id_list:
+        try:
             handle = Entrez.efetch(db = 'pubmed', id = pmid, retmode = 'xml')
             records = Entrez.read(handle)
+        except Exception as e:
+            print(f'Error fetching PMID {pmid}: {e}')
+
             
             #process each article
-            for record in records['PubmedArticle']:
-                article = record['MedlineCitation']['Article']
-                title = article.get('ArticleTitle', 'Title Not Available')
-                abstract = ' '.join(article['Abstract']['AbstractText']) if 'Abstract' in article else ''
-                authors_list = ', '.join(a.get('ForeName', '') + ' ' + a.get('LastName', '') for a in article.get('AuthorList', [])) or 'Authors Not Available'
-                journal = article['Journal'].get('Title', 'Journal Not Available')
-                keywords = ', '.join(k['DescriptorName'] for k in record['MedlineCitation'].get('MeshHeadingList', [])) or 'Keyword Not Available'
-                pub_date = parse_pub_date(article['Journal']['JournalIssue']['PubDate'])
-                url = f"https://www.ncbi.nlm.nih.gov/pubmed/{pmid}"
+        for record in records['PubmedArticle']:
+            article = record['MedlineCitation']['Article']
+            title = article.get('ArticleTitle', 'Title Not Available')
+            abstract = ' '.join(article['Abstract']['AbstractText']) if 'Abstract' in article else ''
+            authors_list = ', '.join(a.get('ForeName', '') + ' ' + a.get('LastName', '') for a in article.get('AuthorList', [])) or 'Authors Not Available'
+            journal = article['Journal'].get('Title', 'Journal Not Available')
+            keywords = ', '.join(k['DescriptorName'] for k in record['MedlineCitation'].get('MeshHeadingList', [])) or 'Keyword Not Available'
+            pub_date = parse_pub_date(article['Journal']['JournalIssue']['PubDate'])
+            url = f"https://www.ncbi.nlm.nih.gov/pubmed/{pmid}"
                 
-                new_result = {
-                    'PMID':pmid,
-                    'Title':title,
-                    'Abstract':abstract,
-                    'Journal':journal,
-                    'Keywords':keywords,
-                    'URL':url,
-                    'Publication Date':pub_date,
-                    }
+            new_result = {
+                'PMID':pmid,
+                'Title':title,
+                'Abstract':abstract,
+                'Journal':journal,
+                'Keywords':keywords,
+                'URL':url,
+                'Publication Date':pub_date,
+                }
             
-                results.append(new_result)
+            results.append(new_result)
              
     return results
 

@@ -53,9 +53,9 @@ def format_query(state: State) -> State:
         "num_articles": an integer
         }}
         
-        user_input: {user_input}"""
+        user_input: {user_input}""",
     )
-    user_input = state['user_input']
+    user_input = state['user_input'] #the user_input in the state is part of the initial state that is specified
 
     
     prompt = extract_prompt.format(user_input = user_input) #user_input var for the prompt = user_input from state['user_input']
@@ -139,12 +139,12 @@ def main():
     #currently written to take free text input, have LLM generate query inputs.
     #if we want to change it so that arguments from command line are used instead, will need to change function above
     #and the arguments to be parsed from CLI below
-    
+
     parser = argparse.ArgumentParser(description = "Generate summary from pubmed query")
     parser.add_argument("--input", required = True, help = "Topic, dates, and number of articles in free text format")
-    #parser.add_argument("--start_date", default = "2023/01/01", help = "Start date in YYYY/MM/DD format")
-    #parser.add_argument("--end_date", default = 2024/12/31, help = "End date in YYY/MM/DD format")
-    #parser.add_argument("--n_articles", default = 5, type = int, help = "Number of articles to review")
+    parser.add_argument("--start_date", default = "2023/01/01", help = "Start date in YYYY/MM/DD format")
+    parser.add_argument("--end_date", default = 2024/12/31, help = "End date in YYY/MM/DD format")
+    parser.add_argument("--n_articles", default = 5, type = int, help = "Number of articles to review")
     args = parser.parse_args()
     user_input = args.input
     #start_date = args.start_date

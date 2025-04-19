@@ -61,6 +61,8 @@ def format_query(state: State) -> State:
 
     response = llm.invoke(prompt)
 
+    print(f'response: {response}')
+
     try:
         parsed = json.loads(response.content)
     except json.JSONDecodeError:
