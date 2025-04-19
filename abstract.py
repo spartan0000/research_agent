@@ -58,7 +58,7 @@ def make_query(topic: str, start_date: str, end_date: str):
 
 
 #process each query
-def get_articles(queries, n_results):
+def get_articles(query, n_results):
     results = []
     
     handle = Entrez.esearch(db = 'pubmed', term = query, retmax = n_results)
