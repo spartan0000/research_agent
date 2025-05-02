@@ -190,7 +190,7 @@ def format_summary_node(state: State) -> State:
     
     prompt = PromptTemplate(
         input_variables = ['raw_summary'],
-        template = f"{prompt_text}: {raw_summary}"
+        template = prompt_text,
     )
 
     message = HumanMessage(content = prompt.format(raw_summary = raw_summary))
