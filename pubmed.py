@@ -22,7 +22,7 @@ OpenAI.api_key = os.getenv('OPENAI_API_KEY')
 
 import argparse 
 
-Entrez.email = 'absurdprofessor@gmail.com'
+Entrez.email = os.getenv('EMAIL')
 
 #use gpt 3.5
 llm = ChatOpenAI(model = "gpt-3.5-turbo", temperature = 0.2)
