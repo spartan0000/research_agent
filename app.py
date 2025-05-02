@@ -4,7 +4,7 @@ from pubmed import run_pubmed
 
 st.title("Pubmed Query and Summary")
 
-query = st.text_input("Enter your pubmed query topic and dates if relevant: ")
+query = st.text_input("Enter your pubmed query topic, number of articles requested, and dates if relevant: ")
 
 if st.button("Run"):
     with st.spinner('Running...'):
