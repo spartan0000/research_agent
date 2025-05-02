@@ -162,7 +162,7 @@ def summarize_node(state: State) -> State:
     """
     text = state['abstract_text']
 
-    prompt_text = 'Summarize each of the following abstracts giving a summary of the methods, key findings and any important conclusions.  After the summary of each abstract, please also list the journal and publication date'
+    prompt_text = 'Summarize each of the following abstracts giving a summary of the methods, key findings and any important conclusions.  After the summary of each abstract, please also list the journal and publication date. Leave a blank line after each abstract so that it is easier to read'
 
     #define prompt template
 
@@ -191,6 +191,25 @@ builder.add_edge("get_abstracts", "summarize")
 
 
 graph = builder.compile()
+
+
+
+def run_pubmed(initial_state):
+    builder = StateGraph(State)
+
+    builder.add_node("format_query", format_query)
+    builder.add_node("get_abstracts", get_article_node)
+    builder.add_node("summarize", summarize_node)
+
+    builder.set_entry_point("format_query")
+    builder.add_edge("format_query", "get_abstracts")
+    builder.add_edge("get_abstracts", "summarize")
+
+
+    graph = builder.compile()
+    result = graph.invoke(initial_state)
+    return result
+
 
 
 def main():
