@@ -87,6 +87,7 @@ class State(TypedDict):
     num_articles: int
     abstract_text: str
     summary: str
+    formatted_summary: str
 
 
 def format_query(state: State) -> State:
@@ -177,6 +178,25 @@ def summarize_node(state: State) -> State:
 
     return {'summary': response}
 
+def format_summary_node(state: State) -> State:
+    raw_summary = state['summary']
+    prompt_text = """
+
+    Simplify the following summaries for a general audience who may not have any medical background as if you are a speaker giving a TED talk.  Explain the 
+    material clearly and concisely without oversimplifying the science.  Avoid medical jargon or technical terms if possible or explain them clearly if needed.
+    Here is the summary: {raw_summary}
+    """
+    
+    
+    prompt = PromptTemplate(
+        input_variables = ['raw_summary'],
+        template = f"{prompt_text}: {raw_summary}"
+    )
+
+    message = HumanMessage(content = prompt.format(raw_summary = raw_summary))
+    response = llm.invoke([message]).content.strip()
+
+    return {'formatted_summary': response}
 
 
 builder = StateGraph(State)
@@ -184,10 +204,12 @@ builder = StateGraph(State)
 builder.add_node("format_query", format_query)
 builder.add_node("get_abstracts", get_article_node)
 builder.add_node("summarize", summarize_node)
+builder.add_node("format_summary", format_summary_node)
 
 builder.set_entry_point("format_query")
 builder.add_edge("format_query", "get_abstracts")
 builder.add_edge("get_abstracts", "summarize")
+builder.add_edge("summarize", "format_summary")
 
 
 graph = builder.compile()
@@ -200,11 +222,13 @@ def run_pubmed(initial_state):
     builder.add_node("format_query", format_query)
     builder.add_node("get_abstracts", get_article_node)
     builder.add_node("summarize", summarize_node)
+    builder.add_node("format_summary", format_summary_node)
+
 
     builder.set_entry_point("format_query")
     builder.add_edge("format_query", "get_abstracts")
     builder.add_edge("get_abstracts", "summarize")
-
+    builder.add_edge("summarize", "format_summary")
 
     graph = builder.compile()
     result = graph.invoke(initial_state)
