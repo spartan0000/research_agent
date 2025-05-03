@@ -184,6 +184,7 @@ def format_summary_node(state: State) -> State:
 
     Simplify the following summaries for a general audience who may not have any medical background as if you are a speaker giving a TED talk.  Explain the 
     material clearly and concisely without oversimplifying the science.  Avoid medical jargon or technical terms if possible or explain them clearly if needed.
+    Use inspiring language and metaphors.
     Here is the summary: {raw_summary}
     """
     
