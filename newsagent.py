@@ -19,6 +19,14 @@ import json
 import requests
 from dataclasses import dataclass
 import datetime
+import logging
+
+logging.basicConfig(
+    level = logging.INFO,
+    format = '%(asctime)s - %(levelname)s =- %(message)s',
+)
+logger = logging.getLogger(__name__)
+
 
 load_dotenv()
 OpenAI.api_key = os.getenv('OPENAI_API_KEY')
@@ -74,6 +82,7 @@ def format_query_node(state: NewsState) -> NewsState:  #formatted query needed f
 
 def get_news_api_node(state: NewsState) -> NewsState:
     '''Get news from NEWSAPI and convert it to a large string for the LLM'''
+    logger.info('Getting news from NEWSAPI')
 
     query = state.query
     language = 'en'
@@ -93,13 +102,16 @@ def get_news_api_node(state: NewsState) -> NewsState:
     news_aggregate = ''.join(f'{articles[i].get("title", "")} {articles[i].get("description", "")} {articles[i].get("content", "")} {articles[i].get("url", "")}' for i in range(len(articles)))
 
     state.news_aggregate = news_aggregate
+
+    logger.info('Got news from NEWSAPI')
     
     return state
 
     
 def get_tavily_node(state: NewsState) -> NewsState:
     '''Get news from Tavily and convert to large string for the LLM'''
-    
+    logger.info('Getting news from Tavily')
+
     TAVILY_API_KEY = os.environ['TAVILY_API_KEY']
     client = TavilyClient(TAVILY_API_KEY)
 
@@ -113,13 +125,19 @@ def get_tavily_node(state: NewsState) -> NewsState:
 
     state.tavily_aggregate = aggregate
 
+    logger.info('Got news from Tavily')
+
     return state
     
     
 def summarize_news_node(state: NewsState) -> NewsState:
     '''
     Summarizes the aggregate text string of news information from the query
+
     '''
+
+    logger.info('Summarizing news')
+
     combined_text = str(state.news_aggregate) + str(state.tavily_aggregate)    
     
     
@@ -135,6 +153,9 @@ def summarize_news_node(state: NewsState) -> NewsState:
     response = llm.invoke([message]).content.strip()
     
     state.news_summary = response
+
+    logger.info('Summarized news')
+
     return state
     
 
@@ -142,7 +163,7 @@ def right_leaning_news_node(state: NewsState) -> NewsState:
     '''
     takes neutral news summary and spins it with a right leaning bias
     '''
-
+    logger.info('Right leaning news summary in process')
     summary = state.news_summary
 
 
@@ -161,12 +182,16 @@ def right_leaning_news_node(state: NewsState) -> NewsState:
     response = llm.invoke([message]).content.strip()
     
     state.right_summary = response
+
+    logger.info('Right leaning news summary complete')
     
     return state
 
 def left_leaning_news_node(state: NewsState) -> NewsState:
     '''Takes a neutral summary and spins it with a left leaning bias'''
     
+    logger.info('Left leaning news summary in process')
+
     summary = state.news_summary
     
     prompt_text = """Take this summary and rewrite it with a left leaning bias as if you are a reporter for a left leaning news outlet such as MSNBC or if you were a political operative
@@ -181,10 +206,15 @@ def left_leaning_news_node(state: NewsState) -> NewsState:
     response = llm.invoke([message]).content.strip()
     state.left_summary = response
     
+    logger.info('Left leaning news summary complete')
+
     return state
 
 def neutral_news_node(state: NewsState) -> NewsState:
     '''Takes a neutral summary and spits out the same thing'''
+
+    logger.info('Neutral news summary in process')
+
     summary = state.news_summary
     prompt_text = '''Take this summary and make minor edits while keeping it largely the same'''
     prompt = PromptTemplate(
@@ -194,11 +224,17 @@ def neutral_news_node(state: NewsState) -> NewsState:
     message = HumanMessage(content = prompt.format(summary = summary))
     response = llm.invoke([message]).content.strip()
     state.neutral_summary = response
+
+    logger.info('Neutral news summary complete')
+
     return state
 
 
 def publish(state: NewsState) -> NewsState:
     '''Takes one of 3 summaries and polishes it'''
+
+    logger.info('Publishing in progress')
+
     if state.user_bias == 'left':
         summary = state.left_summary
     elif state.user_bias == 'right':
@@ -218,6 +254,9 @@ def publish(state: NewsState) -> NewsState:
     message = HumanMessage(content = prompt.format(summary = summary))
     response = llm.invoke([message]).content.strip()
     state.final_summary = response
+
+    logger.info('Publishing complete')
+
     return state
 
 def run_news_agent(state):
