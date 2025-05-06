@@ -260,4 +260,4 @@ def run_news_agent(state):
 if __name__ == '__main__':
     state = NewsState(user_input = 'What has donald trump been up to?', user_bias = 'left')
     news = run_news_agent(state)
-    print(news)
+    print(news['final_summary'])
