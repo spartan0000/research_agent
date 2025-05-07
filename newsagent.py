@@ -169,9 +169,9 @@ def right_leaning_news_node(state: NewsState) -> NewsState:
     summary = state.news_summary
 
 
-    prompt_text = '''Take this summary and rewrite with a right leaning bias as if you are a reporter for a right wing news outlet such as Breitbart.
+    prompt_text = '''Take this summary and rewrite with a right leaning bias as if you are a reporter for a right wing news outlet such as OANN or Breitbart.
     The summary should be based on facts but can use hyperbole or exaggeration.  The biased summary should be something that a sterotypical Trump supporter 
-    would enjoy reading and one that a Democratic voter would find unappealing
+    would enjoy reading and one that a Democratic voter would find unappealing.  It should be similar to something Tucker Carlson would write or say.
     '''
 
     prompt = PromptTemplate(
@@ -198,7 +198,7 @@ def left_leaning_news_node(state: NewsState) -> NewsState:
     
     prompt_text = """Take this summary and rewrite it with a left leaning bias as if you are a reporter for a left leaning news outlet such as MSNBC or if you were a political operative
     aligned with radical progressive and left wing ideologies.  The biased summary should be something that a stereotypical Trump supporter would find repulsive and one that someone who 
-    voted for Hillary Clinton, Joe Biden and Kamala Harris would find appealing"""
+    voted for Hillary Clinton, Joe Biden and Kamala Harris would find appealing.  It can include exaggerations and hyperbole bordering on propaganda"""
 
     prompt = PromptTemplate(
         input_variables = ['summary'],
