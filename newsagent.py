@@ -34,7 +34,7 @@ NEWSAPI_API_KEY = os.getenv('NEWSAPI_API_KEY')
 TAVILY_API_KEY = os.getenv('TAVILY_API_KEY ')
 
 
-llm = ChatOpenAI(model = 'gpt-3.5-turbo', temperature = 0.6)
+#llm = ChatOpenAI(model = 'gpt-3.5-turbo', temperature = 0.6) #llm scoped inside each function with different settings
 
 @dataclass
 class NewsState:
@@ -53,6 +53,7 @@ class NewsState:
         
 
 def format_query_node(state: NewsState) -> NewsState:  #formatted query needed for NEWSAPI.  Tavily takes free text query
+    llm = ChatOpenAI(model = 'gpt-3.5-turbo', temperature = 0.2)
     extract_prompt = PromptTemplate(
         input_variables = ['user_input'],
         template = """
@@ -135,7 +136,7 @@ def summarize_news_node(state: NewsState) -> NewsState:
     Summarizes the aggregate text string of news information from the query
 
     '''
-
+    llm = ChatOpenAI(model = 'gpt-3.5-turbo', temperature = 0.2)
     logger.info('Summarizing news')
 
     combined_text = str(state.news_aggregate) + str(state.tavily_aggregate)    
@@ -163,6 +164,7 @@ def right_leaning_news_node(state: NewsState) -> NewsState:
     '''
     takes neutral news summary and spins it with a right leaning bias
     '''
+    llm = ChatOpenAI(model = 'gpt-3.5-turbo', temperature = 0.9, frequency_penalty = 0.6)
     logger.info('Right leaning news summary in process')
     summary = state.news_summary
 
@@ -189,7 +191,7 @@ def right_leaning_news_node(state: NewsState) -> NewsState:
 
 def left_leaning_news_node(state: NewsState) -> NewsState:
     '''Takes a neutral summary and spins it with a left leaning bias'''
-    
+    llm = ChatOpenAI(model = 'gpt-3.5-turbo', temperature = 0.9, frequency_penalty = 0.6)
     logger.info('Left leaning news summary in process')
 
     summary = state.news_summary
@@ -214,7 +216,7 @@ def neutral_news_node(state: NewsState) -> NewsState:
     '''Takes a neutral summary and spits out the same thing'''
 
     logger.info('Neutral news summary in process')
-
+    llm = ChatOpenAI(model = 'gpt-3.5-turbo', temperature = 0.2, frequency_penalty = 0.6)
     summary = state.news_summary
     prompt_text = '''Take this summary and make minor edits while keeping it largely the same'''
     prompt = PromptTemplate(
@@ -232,7 +234,7 @@ def neutral_news_node(state: NewsState) -> NewsState:
 
 def publish(state: NewsState) -> NewsState:
     '''Takes one of 3 summaries and polishes it'''
-
+    llm = ChatOpenAI(model = 'gpt-3.5-turbo', temperature = 0.5, presence_penalty = 0.6)
     logger.info('Publishing in progress')
 
     if state.user_bias == 'left':
@@ -297,6 +299,6 @@ def run_news_agent(state):
     return result
 
 if __name__ == '__main__':
-    state = NewsState(user_input = 'What has donald trump been up to?', user_bias = 'left')
+    state = NewsState(user_input = 'What has donald trump been up to?', user_bias = 'right')
     news = run_news_agent(state)
     print(news['final_summary'])
