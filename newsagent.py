@@ -169,7 +169,7 @@ def right_leaning_news_node(state: NewsState) -> NewsState:
     summary = state.news_summary
 
 
-    prompt_text = '''Take this summary and rewrite with a right leaning bias as if you are a reporter for a right wing news outlet such as OAN or Breitbart.
+    prompt_text = '''Take this summary and rewrite with a right leaning bias as if you are a reporter for a right wing news outlet such as Breitbart.
     The summary should be based on facts but can use hyperbole or exaggeration.  The biased summary should be something that a sterotypical Trump supporter 
     would enjoy reading and one that a Democratic voter would find unappealing
     '''
