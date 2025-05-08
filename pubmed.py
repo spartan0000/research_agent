@@ -14,8 +14,17 @@ from langchain.schema import HumanMessage
 
 from Bio import Entrez
 
-from openai import OpenAI
+
 import json
+
+import logging
+
+logging.basicConfig(
+    level = logging.INFO,
+    format = '%(asctime)s - %(levelname)s =- %(message)s',
+)
+
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 OpenAI.api_key = os.getenv('OPENAI_API_KEY')
@@ -133,7 +142,10 @@ def format_query(state: State) -> State:
 def get_article_node(state: State) -> State:
     """
     Get the abstract from pubmed and add it to the state
+
     """
+    logger.info('Getting articles from pubmed')
+
     start = state['start_date']
     end = state['end_date']
     query = state['query']
@@ -150,6 +162,9 @@ def get_article_node(state: State) -> State:
     #print('queries:', queries)
     articles = get_articles(queries, state['num_articles'])
     abstract_text = create_string(articles)
+
+    logger.info('Articles retrieved')
+
     return {'abstract_text': abstract_text}
 
 def summarize_node(state: State) -> State:
@@ -160,7 +175,10 @@ def summarize_node(state: State) -> State:
     Parameters: state(State): The current state which contains the abstract text to summarize
 
     Returns: state(State): the updated state which includes a summary
+
     """
+    logger.info('Summarizing articles')
+
     text = state['abstract_text']
 
     prompt_text = 'Summarize each of the following abstracts giving a summary of the methods, key findings and any important conclusions.  After the summary of each abstract, please also list the journal and publication date. Leave a blank line after each abstract so that it is easier to read'
@@ -175,6 +193,7 @@ def summarize_node(state: State) -> State:
     message = HumanMessage(content = prompt.format(text = text))
 
     response = llm.invoke([message]).content.strip()
+    logger.info('Summarizing complete')
 
     return {'summary': response}
 
@@ -187,7 +206,7 @@ def format_summary_node(state: State) -> State:
     Use inspiring language and metaphors.
     Here is the summary: {raw_summary}
     """
-    
+    logging.info('Formatting summary for general audience')
     
     prompt = PromptTemplate(
         input_variables = ['raw_summary'],
@@ -196,6 +215,8 @@ def format_summary_node(state: State) -> State:
 
     message = HumanMessage(content = prompt.format(raw_summary = raw_summary))
     response = llm.invoke([message]).content.strip()
+
+    logging.info('Formatting complete')
 
     return {'formatted_summary': response}
 
