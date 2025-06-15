@@ -11,7 +11,7 @@ You will need an OpenAI API key and an email address
 
 All you need is to type - streamlit run app.py in your command line
 
---News Summarizer
+--News Summarizer--
 A simple app that takes the user's topic of interest and pulls news articles and returns a summary
 For fun, the user can select either a right leaning or left leaning bias to their news
 
